@@ -1,21 +1,22 @@
 package main
-//  MessagesTree is a map indexed by year, containing embedded maps of messages for that year.
+
 import (
-	"bytes"
 	"html/template"
+	"io"
 	"time"
 )
 
-// Those maps contain embedded maps for months, and those contain slices of messages written on a single day.
-// This is the tree we need to display a conversation as html.
+// MessagesTree contains messages sorted by date to make displaying them as structured html easier.
+// It's a map with years as keys and embedded maps as values.
+// Those embedded maps contain months as keys and other embedded maps as values.
+// Those contain days as keys and slices of messages for one particular day as values.
 type MessagesTree map[int]year
 
 type month map[int][]Message
 type year map[time.Month]month
 
-// New converts a Conversation, as unmarshalled from json, to a structure easy to use when  converting messages to  html format.
-// TODO: Rename to something that makes more sense.
-func New(t *Thread) *MessagesTree {
+// ToMessagesTree converts a Conversation, as unmarshalled from json, to a structure easy to use when  converting messages to  html format.
+func (t *Thread) ToMessagesTree() *MessagesTree {
 	tree := make(MessagesTree)
 	for _, v := range t.Messages {
 		tree.Insert(v)
@@ -35,7 +36,7 @@ func (t MessagesTree) Insert(m Message) {
 	t[d.Year()][d.Month()][d.Day()] = append(t[d.Year()][d.Month()][d.Day()], m)
 }
 
-//The template we use to create the html documents. Proably should reside in a separate file and get some indentation.
+//The template we use to create the html documents. Probably should reside in a separate file and get some indentation.
 const templateString = `
 <html>
 <head>
@@ -67,11 +68,7 @@ func init() {
 	template.Must(tmpl.Parse(templateString))
 }
 
-// Converts a MessagesTree to html.
-// It's called String for simplicity (it satisfies the Stringer interface) but it probably should be renamed to something more appropriate.
-func (t *MessagesTree) String() string {
-	w := bytes.NewBuffer([]byte{})
-	tmpl.Execute(w, t)
-	return w.String()
-	//I know, that was ugly.
+// HTML Converts a MessagesTree to html.
+func (t *MessagesTree) HTML(w io.Writer) error {
+	return tmpl.Execute(w, t)
 }

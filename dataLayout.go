@@ -1,4 +1,5 @@
 package main
+
 // Holds the data types needed to unmarshal the json and their associated methods.
 import "time"
 
@@ -44,7 +45,7 @@ type Message struct {
 }
 
 // timestamp is a type needed because the json has  timestamps in a peculiar format and json.Unmarshal can't deal with it when a normal time.Time is used.
-type timestamp struct { time.Time }
+type timestamp struct{ time.Time }
 
 // UnmarshalJSON unmarshals that peculiar time format to a proper Time value.
 

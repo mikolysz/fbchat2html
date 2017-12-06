@@ -98,16 +98,16 @@ func handleStatistics(data *Conversations, wg *sync.WaitGroup) {
 // Actually output the html documents.
 func handleArchive(data *Conversations, wg *sync.WaitGroup) {
 	for _, t := range data.Threads {
-		c := New(&t)
 		if len(t.Participants) >= 5 { // Ugly hack to make the names short enough so windows doesn't complain.
 			//TODO: Change "John Smit, John Doe, Allice, Bob, Others" to "John Smith, John Doe, Allice, Bob and  others" or use (...) at the end of the name.
 			// TODO: Allow creating a separate directory for group threads.
 			t.Participants = append(t.Participants[0:4], "others")
 		}
 		filename := strings.Join(t.Participants, ",") + ".html"
-		err := ioutil.WriteFile(path.Join(outputDir, filename), []byte(c.String()), 0)
-		if err != nil {
+		if f, err := os.Create(path.Join(outputDir, filename)); err != nil {
 			panic(err.Error())
+		} else {
+			t.ToMessagesTree().HTML(f)
 		}
 	}
 
