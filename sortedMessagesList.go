@@ -25,7 +25,7 @@ func New(t *Thread) *MessagesTree {
 
 // Inserts one message into the tree, creating the needed embedded maps as needed.
 func (t MessagesTree) Insert(m Message) {
-	d := time.Time(m.Date)
+	d := m.Date
 	if t[d.Year()] == nil {
 		t[d.Year()] = make(year)
 	}

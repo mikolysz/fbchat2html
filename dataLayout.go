@@ -44,9 +44,9 @@ type Message struct {
 }
 
 // timestamp is a type needed because the json has  timestamps in a peculiar format and json.Unmarshal can't deal with it when a normal time.Time is used.
-type timestamp time.Time
+type timestamp struct { time.Time }
 
-// UnmarshalJSON unmarshals that peculiar time format to a proper TIme value.
+// UnmarshalJSON unmarshals that peculiar time format to a proper Time value.
 
 func (t *timestamp) UnmarshalJSON(data []byte) error {
 	// Copied almost verbatim from the source of the standard library, with one minor modification to the string passed to time.Parse.
@@ -56,6 +56,6 @@ func (t *timestamp) UnmarshalJSON(data []byte) error {
 	}
 	// Fractional seconds are handled implicitly by Parse.
 	result, err := time.Parse(`"2006-01-02T15:04-07:00"`, string(data))
-	*t = timestamp(result)
+	t.Time = result
 	return err
 }
